@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0c0e14" />
+    <title>Golos</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app" id="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">H</span>
+          <div>
+            <p class="brand-name">Golos</p>
+            <h1 id="screen-title">Лента</h1>
+          </div>
+        </div>
+        <p id="session-chip" class="session-chip">Гость</p>
+      </header>
+
+      <main id="main">
+        <section id="screen-feed" class="screen" data-screen="feed" aria-label="Лента"></section>
+        <section id="screen-following" class="screen" data-screen="following" aria-label="Подписки" hidden></section>
+        <section id="screen-blog" class="screen" data-screen="blog" aria-label="Мой блог" hidden></section>
+        <section id="screen-create" class="screen" data-screen="create" aria-label="Создать пост" hidden>  
+        <form id="create-form" class="auth-card">
+            <h2>Новый пост</h2>
+            <p class="hint">Поделитесь чем-нибудь интересным с сообществом Golos.</p>
+            
+            <label>
+              Заголовок
+              <input id="post-title" type="text" placeholder="О чём ваш пост?" required />
+            </label>
+            
+            <label>
+              Текст
+              <div class="editor-toolbar">
+                <button type="button" data-format="bold" title="Жирный"><b>B</b></button>
+                <button type="button" data-format="italic" title="Курсив"><i>I</i></button>
+                <button type="button" data-format="quote" title="Цитата">❝</button>
+                <button type="button" id="add-image-btn" title="Добавить фото">🖼️</button>
+              </div>
+              <!-- Заменили textarea на contenteditable -->
+              <div id="post-body" class="editor-area" contenteditable="true" placeholder="Расскажите свою историю..."></div>
+            </label>
+            
+            <label>
+              Теги (через запятую)
+              <input id="post-tags" type="text" placeholder="golos, ru" value="golos, ru" />
+            </label>
+            
+            <div class="form-actions">
+              <button type="button" id="save-draft-btn" class="ghost">Сохранить черновик</button>
+              <button class="primary" type="submit">Опубликовать</button>
+            </div>
+            <p id="create-error" class="form-error" role="alert"></p>
+          </form>
+        </section>
+        <section id="screen-login" class="screen" data-screen="login" aria-label="Вход" hidden>
+          <form id="login-form" class="auth-card">
+            <h2>Вход в аккаунт</h2>
+            <p class="hint">Нужны имя аккаунта Golos и приватный posting-ключ. Active и owner ключи сюда вводить нельзя.</p>
+
+            <label>
+              Имя аккаунта
+              <input id="login-username" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="username" required />
+            </label>
+
+            <label>
+              Posting key
+              <input id="login-key" name="postingKey" type="password" autocomplete="off" placeholder="5..." required />
+            </label>
+
+            <p class="warning">
+              Это прототип: ключ сохранится в localStorage этого браузера в открытом виде. Используйте тестовый аккаунт.
+            </p>
+
+            <button class="primary" type="submit">Войти</button>
+            <p id="login-error" class="form-error" role="alert"></p>
+          </form>
+
+          <div id="account-panel" class="auth-card" hidden>
+            <p class="eyebrow">Активная сессия</p>
+            <h2 id="account-name"></h2>
+            <p class="hint">Подписки, блог, апвоуты и комментарии идут от этого аккаунта.</p>
+            <button id="logout-btn" class="ghost" type="button">Выйти</button>
+          </div>
+        </section>
+      </main>
+
+      <nav class="tabbar" aria-label="Разделы">
+        <button type="button" data-nav="feed" class="is-active">
+          <span class="tab-icon" aria-hidden="true">🏠</span>
+          <span>Лента</span>
+        </button>
+        <button type="button" data-nav="following">
+          <span class="tab-icon" aria-hidden="true">👥</span>
+          <span>Подписки</span>
+        </button>
+        <button type="button" data-nav="create">
+          <span class="tab-icon" style="font-size: 24px; color: var(--accent);" aria-hidden="true">➕</span>
+          <span>Создать</span>
+        </button>
+        <button type="button" data-nav="blog">
+          <span class="tab-icon" aria-hidden="true">👤</span>
+          <span>Мой блог</span>
+        </button>
+        <button type="button" data-nav="login">
+          <span class="tab-icon" aria-hidden="true">🔑</span>
+          <span>Вход</span>
+          <i id="login-dot" class="login-dot" hidden></i>
+        </button>
+      </nav>
+
+      <section id="viewer" class="viewer" hidden aria-label="Пост">
+        <header class="viewer-bar">
+          <button id="viewer-back" class="icon-btn" type="button">Назад</button>
+          <a id="viewer-author" class="viewer-author" href="#" target="_blank" rel="noopener noreferrer"></a>
+          <button id="viewer-vote" class="up-btn" type="button">Ап</button>
+        </header>
+        <div id="viewer-scroll" class="viewer-scroll">
+          <h2 id="viewer-title"></h2>
+          <p id="viewer-meta" class="meta"></p>
+          <div id="viewer-body" class="post-body"></div>
+          <h3 class="comments-heading">Комментарии</h3>
+          <div id="viewer-comments"></div>
+        </div>
+        <form id="comment-form" class="comment-form">
+          <label class="sr-only" for="comment-body">Комментарий</label>
+          <textarea id="comment-body" rows="2" maxlength="10000" placeholder="Написать комментарий"></textarea>
+          <button class="primary" type="submit">Отправить</button>
+        </form>
+      </section>
+
+      <div id="toast" class="toast" hidden role="status"></div>
+    </div>
+
+    <!-- Библиотека для работы с блокчейном Golos -->
+    <script src="https://cdn.jsdelivr.net/npm/golos-lib-js@latest/dist/golos.min.js" defer></script>
+    
+    <!-- Библиотека для безопасности (очистка HTML) -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js" defer></script>
+    
+    <!-- НОВАЯ библиотека для парсинга Markdown и HTML-тегов постов -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+    
+    <!-- Наш код -->
+    <script src="app.js" defer></script>
+  </body>
+</html>
