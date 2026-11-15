@@ -1,2 +1,2 @@
 # g-mini-mobile
-test of client
+test of client for GOLOS chain
